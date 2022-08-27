@@ -1,6 +1,10 @@
 import React, { useEffect, ReactElement, useState } from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
+import { Clinic } from "../../dataTypes/Clinic";
+
 import './UserMapView.css';
+
+import { MockClinicsData } from "../../MockClinicsData";
 
 const render = (status: Status): ReactElement => {
     switch (status) {
@@ -42,23 +46,19 @@ function MapComponent({
    * @param lat 
    * @param lng 
    */
-const addMarker = (map: google.maps.Map, geocoder: google.maps.Geocoder, address: string) => {
-
-    geocoder.geocode( { 'address': address}, function(results, status) {
-        if (status == 'OK' && results != null) {
-
-          var marker = new google.maps.Marker({
-              map: map,
-              position: results[0].geometry.location
-          });
-          marker.addListener("click", () => {
+const addMarker = (
+    map: google.maps.Map,
+    geocoder: google.maps.Geocoder,
+    lat: number,
+    lng: number) => {
+        var marker = new google.maps.Marker({
+            map: map,
+            position: {lat, lng}
+        });
+        marker.addListener("click", () => {
             map.setZoom(12);
             map.panTo(marker.getPosition() as google.maps.LatLng);
-          });
-        } else {
-          alert('Geocode was not successful for the following reason: ' + status);
-        }
-      });
+        });
 }
 
 function UserMapView() {
@@ -75,8 +75,6 @@ function UserMapView() {
         });
     }
 
-
-
     if (process.env.REACT_APP_GOOGLE_MAP_KEY != undefined) {
         api_key = process.env.REACT_APP_GOOGLE_MAP_KEY;
     }
@@ -85,7 +83,10 @@ function UserMapView() {
         if (mapObject == undefined) return;
         
         // populate markers
-        addMarker(mapObject, geocoder, "3840 S Moorland Road New Berlin, WI 53151")
+        MockClinicsData.forEach(clinic => {
+            // put together the address
+            addMarker(mapObject, geocoder, clinic.lat, clinic.lng);
+        })
 
     }, [mapObject])
     return (
