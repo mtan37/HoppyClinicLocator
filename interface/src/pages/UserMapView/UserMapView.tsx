@@ -65,6 +65,7 @@ const addMarker = (
     lng: number,
     clinicType: number) => {
         let markerType = regularClinicMarker;
+
         switch (clinicType) {
             case 0: // regular
                 markerType = regularClinicMarker;
@@ -76,6 +77,8 @@ const addMarker = (
                 markerType = bothClinicMarker;
                 break;
         }
+
+        markerType.anchor = new google.maps.Point(10, 23);
         var marker = new google.maps.Marker({
             map: map,
             position: {lat, lng},
