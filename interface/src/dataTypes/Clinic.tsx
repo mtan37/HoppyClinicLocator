@@ -11,6 +11,6 @@ export type Clinic = {
     "url": string;
     "zipcode": number;
     "note"?: string;
-    "lat": number;
-    "lng": number;
+    "lat": string;
+    "lng": string;
 };

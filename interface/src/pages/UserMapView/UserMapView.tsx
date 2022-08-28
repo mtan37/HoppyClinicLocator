@@ -1,10 +1,10 @@
 import React, { useEffect, ReactElement, useState } from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
-import { Clinic } from "../../dataTypes/Clinic";
 
 import './UserMapView.css';
 
 import { MockClinicsData } from "../../MockClinicsData";
+import { regularClinicMarker, emergencyClinicMarker, bothClinicMarker } from "./Components/Marker";
 
 const render = (status: Status): ReactElement => {
     switch (status) {
@@ -17,6 +17,11 @@ const render = (status: Status): ReactElement => {
     }
 };
 
+/**
+ * Initialize map
+ * @param param0 
+ * @returns 
+ */
 function MapComponent({
     center,
     zoom,
@@ -27,17 +32,25 @@ function MapComponent({
     setMapObject: React.Dispatch<React.SetStateAction<google.maps.Map|undefined>>;
   }) {
     const GOOGLE_MAP_DIV_ID = "google_map_div";
+    const GOOGLE_MAP_LEGEND_ID = "google_map_legend";
     useEffect(() => {
         // populate the div with id GOOGLE_MAP_DIV_ID with google map
         let map_element = document.getElementById(GOOGLE_MAP_DIV_ID);
         if (map_element == undefined ) return;
-        setMapObject(new google.maps.Map(map_element, {
+        let map = new google.maps.Map(map_element, {
             center: center,
             zoom: zoom
-        }))
+        })
+        setMapObject(map);
     }, [""]);
   
-    return <div id={GOOGLE_MAP_DIV_ID} style={{ height: '100vh', width: '100%' }}/>;
+    return (
+        <>
+            <div id={GOOGLE_MAP_DIV_ID} style={{ height: '100vh', width: '100%' }}>
+            </div>
+            <div id={GOOGLE_MAP_LEGEND_ID}></div>
+        </>
+    );
   }
 
   /**
@@ -48,12 +61,25 @@ function MapComponent({
    */
 const addMarker = (
     map: google.maps.Map,
-    geocoder: google.maps.Geocoder,
     lat: number,
-    lng: number) => {
+    lng: number,
+    clinicType: number) => {
+        let markerType = regularClinicMarker;
+        switch (clinicType) {
+            case 0: // regular
+                markerType = regularClinicMarker;
+                break;
+            case 1: // emergency only
+                markerType = emergencyClinicMarker;
+                break;
+            case 2: // both
+                markerType = bothClinicMarker;
+                break;
+        }
         var marker = new google.maps.Marker({
             map: map,
-            position: {lat, lng}
+            position: {lat, lng},
+            icon: markerType
         });
         marker.addListener("click", () => {
             map.setZoom(12);
@@ -62,12 +88,12 @@ const addMarker = (
 }
 
 function UserMapView() {
+    
     let api_key: string = "";
     const DEFAULT_CENTER = { lat: 44.500000, lng: -89.500000 };
     const DEFAULT_ZOOM = 10;
     const [userLocation, setUserLocation] = useState<{lat: number, lng: number}>(DEFAULT_CENTER);
     const [mapObject, setMapObject] = useState<google.maps.Map | undefined>(undefined);
-    const [geocoder, setGeoCoder] = useState<google.maps.Geocoder>(new google.maps.Geocoder());
 
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -81,17 +107,16 @@ function UserMapView() {
 
     useEffect(() => {
         if (mapObject == undefined) return;
-        
         // populate markers
         MockClinicsData.forEach(clinic => {
             // put together the address
-            addMarker(mapObject, geocoder, clinic.lat, clinic.lng);
+            addMarker(mapObject, parseFloat(clinic.lat), parseFloat(clinic.lng), clinic["clinic type"]);
         })
 
     }, [mapObject])
     return (
         <Wrapper apiKey={api_key} render={render}>
-            <MapComponent center={userLocation} zoom={DEFAULT_ZOOM} setMapObject={setMapObject} />
+            <MapComponent center={userLocation} zoom={DEFAULT_ZOOM} setMapObject={setMapObject}/>
         </Wrapper>
     ); 
 }
