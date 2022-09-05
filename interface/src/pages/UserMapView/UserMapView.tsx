@@ -1,5 +1,6 @@
 import React, { useEffect, ReactElement, useState } from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
+import MapComponent from "./Components/MapComponent";
 
 import './UserMapView.css';
 
@@ -16,42 +17,6 @@ const render = (status: Status): ReactElement => {
             return <></>;
     }
 };
-
-/**
- * Initialize map
- * @param param0 
- * @returns 
- */
-function MapComponent({
-    center,
-    zoom,
-    setMapObject
-  }: {
-    center: google.maps.LatLngLiteral;
-    zoom: number;
-    setMapObject: React.Dispatch<React.SetStateAction<google.maps.Map|undefined>>;
-  }) {
-    const GOOGLE_MAP_DIV_ID = "google_map_div";
-    const GOOGLE_MAP_LEGEND_ID = "google_map_legend";
-    useEffect(() => {
-        // populate the div with id GOOGLE_MAP_DIV_ID with google map
-        let map_element = document.getElementById(GOOGLE_MAP_DIV_ID);
-        if (map_element == undefined ) return;
-        let map = new google.maps.Map(map_element, {
-            center: center,
-            zoom: zoom
-        })
-        setMapObject(map);
-    }, [""]);
-  
-    return (
-        <>
-            <div id={GOOGLE_MAP_DIV_ID} style={{ height: '100vh', width: '100%' }}>
-            </div>
-            <div id={GOOGLE_MAP_LEGEND_ID}></div>
-        </>
-    );
-  }
 
   /**
    * Add a new market to the map, and all the event listener needed by each marker
@@ -117,6 +82,7 @@ function UserMapView() {
         })
 
     }, [mapObject])
+    
     return (
         <Wrapper apiKey={api_key} render={render}>
             <MapComponent center={userLocation} zoom={DEFAULT_ZOOM} setMapObject={setMapObject}/>
