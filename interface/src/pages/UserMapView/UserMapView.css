@@ -2,3 +2,8 @@
     --color-stop: #f12c06;
     --color-bot: #faed34;
   }
+
+.map_view_wrapper_w {
+  display: flex;
+  flex-direction: row;
+}

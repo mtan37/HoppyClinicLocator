@@ -1,11 +1,11 @@
 import React, { useEffect, ReactElement, useState } from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 import MapComponent from "./Components/MapComponent";
+import MapLegend from "./Components/Sidebar";
 
 import './UserMapView.css';
 
 import { MockClinicsData } from "../../MockClinicsData";
-import { regularClinicMarker, emergencyClinicMarker, bothClinicMarker } from "./Components/Marker";
 
 const render = (status: Status): ReactElement => {
     switch (status) {
@@ -27,27 +27,19 @@ const render = (status: Status): ReactElement => {
 const addMarker = (
     map: google.maps.Map,
     lat: number,
-    lng: number,
-    clinicType: number) => {
-        let markerType = regularClinicMarker;
+    lng: number) => {
 
-        switch (clinicType) {
-            case 0: // regular
-                markerType = regularClinicMarker;
-                break;
-            case 1: // emergency only
-                markerType = emergencyClinicMarker;
-                break;
-            case 2: // both
-                markerType = bothClinicMarker;
-                break;
-        }
+        const icon = {
+            url: process.env.PUBLIC_URL + "/map_icon.png",
+            scaledSize: new google.maps.Size(30, 30), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(10, 23) // anchor
+        };
 
-        markerType.anchor = new google.maps.Point(10, 23);
         var marker = new google.maps.Marker({
             map: map,
             position: {lat, lng},
-            icon: markerType
+            icon: icon
         });
         marker.addListener("click", () => {
             map.setZoom(12);
@@ -78,15 +70,18 @@ function UserMapView() {
         // populate markers
         MockClinicsData.forEach(clinic => {
             // put together the address
-            addMarker(mapObject, parseFloat(clinic.lat), parseFloat(clinic.lng), clinic["clinic type"]);
+            addMarker(mapObject, parseFloat(clinic.lat), parseFloat(clinic.lng));
         })
 
     }, [mapObject])
     
     return (
+        <div className="map_view_wrapper_w">
         <Wrapper apiKey={api_key} render={render}>
+            <MapLegend/>
             <MapComponent center={userLocation} zoom={DEFAULT_ZOOM} setMapObject={setMapObject}/>
         </Wrapper>
+        </div>
     ); 
 }
 

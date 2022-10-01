@@ -1,0 +1,9 @@
+.sidebar_container {
+    width: 50vh;
+    height: auto;
+    border: 0px solid;
+    padding: 10px 10px 10px 10px;
+    background-color: white;
+    bottom: 0;
+    left: 0;
+}
