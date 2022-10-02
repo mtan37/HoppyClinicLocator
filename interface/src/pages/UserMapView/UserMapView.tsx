@@ -1,7 +1,7 @@
-import React, { useEffect, ReactElement, useState } from "react";
+import { useEffect, ReactElement, useState } from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 import MapComponent from "./Components/MapComponent";
-import MapLegend from "./Components/Sidebar";
+import Sidebar from "./Components/Sidebar";
 
 import './UserMapView.css';
 
@@ -55,6 +55,9 @@ function UserMapView() {
     const [userLocation, setUserLocation] = useState<{lat: number, lng: number}>(DEFAULT_CENTER);
     const [mapObject, setMapObject] = useState<google.maps.Map | undefined>(undefined);
 
+    const [showRegularClinics, setShowRegularClinics] = useState<boolean>(true);
+    const [showEmergencyClinics, setShowEmergencyClinics] = useState<boolean>(true);
+
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(function(position) {
             setUserLocation({lat: position.coords.latitude, lng: position.coords.longitude})
@@ -78,7 +81,12 @@ function UserMapView() {
     return (
         <div className="map_view_wrapper_w">
         <Wrapper apiKey={api_key} render={render}>
-            <MapLegend/>
+            <Sidebar
+                showRegularClinics={showRegularClinics}
+                setShowRegularClinics={setShowRegularClinics}
+                showEmergencyClinics={showEmergencyClinics}
+                setShowEmergencyClinics={setShowEmergencyClinics}
+            />
             <MapComponent center={userLocation} zoom={DEFAULT_ZOOM} setMapObject={setMapObject}/>
         </Wrapper>
         </div>
